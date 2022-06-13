@@ -2,8 +2,12 @@ use lazy_static::lazy_static;
 use spin::Mutex;
 use uart_16550::SerialPort;
 
+use x86_64::instructions::interrupts;
+use core::fmt::Write;
+
 lazy_static! {
     pub static ref SERIAL_1: Mutex<SerialPort> = {
+        // 0x3F8 is the standard port number for the first serial interface
         let mut serial_port = unsafe { SerialPort::new(0x3F8) };
         serial_port.init();
         Mutex::new(serial_port)
@@ -12,11 +16,12 @@ lazy_static! {
 
 #[doc(hidden)]
 pub fn _print(args: ::core::fmt::Arguments) {
-    use core::fmt::Write;
-    SERIAL_1
-        .lock()
-        .write_fmt(args)
-        .expect("Printing to serial failed");
+    interrupts::without_interrupts(|| {
+        SERIAL_1
+            .lock()
+            .write_fmt(args)
+            .expect("Printing to serial failed");
+    });
 }
 
 #[macro_export]

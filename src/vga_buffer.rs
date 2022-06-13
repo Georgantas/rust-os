@@ -3,6 +3,7 @@ use core::fmt::{Arguments, Result, Write};
 use lazy_static::lazy_static;
 use spin::Mutex;
 use volatile::Volatile;
+use x86_64::instructions::interrupts;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -145,7 +146,9 @@ macro_rules! println {
 // hide this function from the documentation generation
 #[doc(hidden)]
 pub fn _print(args: Arguments) {
-    WRITER.lock().write_fmt(args).unwrap();
+    interrupts::without_interrupts(|| {
+        WRITER.lock().write_fmt(args).unwrap();
+    });
 }
 
 #[test_case]
@@ -163,9 +166,14 @@ fn test_println_many() {
 #[test_case]
 fn test_println_output() {
     let expected_string = "Some test string that fits on a single line.";
-    println!("{}", expected_string);
-    for (i, c) in expected_string.chars().enumerate() {
-        let screen_char = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i].read();
-        assert_eq!(char::from(screen_char.ascii_character), c);
-    }
+
+    interrupts::without_interrupts(|| {
+        let mut writer = WRITER.lock();
+        writeln!(writer, "\n{}", expected_string)
+            .expect("writeln failed");
+        for (i, c) in expected_string.chars().enumerate() {
+            let screen_char = writer.buffer.chars[BUFFER_HEIGHT - 2][i].read();
+            assert_eq!(char::from(screen_char.ascii_character), c);
+        }
+    });
 }
