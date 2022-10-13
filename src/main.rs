@@ -20,10 +20,7 @@ pub extern "C" fn _start() -> ! {
 
     println!("No crash!");
 
-    loop {
-        use rust_os::print;
-        print!("-");
-    }
+    rust_os::hlt_loop();
 }
 
 #[cfg(test)]
@@ -36,7 +33,7 @@ fn panic(info: &PanicInfo) -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    rust_os::hlt_loop();
 }
 
 #[test_case]

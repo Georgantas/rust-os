@@ -169,8 +169,7 @@ fn test_println_output() {
 
     interrupts::without_interrupts(|| {
         let mut writer = WRITER.lock();
-        writeln!(writer, "\n{}", expected_string)
-            .expect("writeln failed");
+        writeln!(writer, "\n{}", expected_string).expect("writeln failed");
         for (i, c) in expected_string.chars().enumerate() {
             let screen_char = writer.buffer.chars[BUFFER_HEIGHT - 2][i].read();
             assert_eq!(char::from(screen_char.ascii_character), c);

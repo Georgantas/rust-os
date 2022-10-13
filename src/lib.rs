@@ -8,10 +8,10 @@
 #![reexport_test_harness_main = "test_main"]
 #![feature(abi_x86_interrupt)]
 
+pub mod gdt;
 pub mod interrupts;
 pub mod serial;
 pub mod vga_buffer;
-pub mod gdt;
 
 use core::panic::PanicInfo;
 
@@ -68,7 +68,13 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 
     exit_qemu(QemuExitCode::Failed);
 
-    loop {}
+    hlt_loop();
+}
+
+pub fn hlt_loop() -> ! {
+    loop {
+        x86_64::instructions::hlt();
+    }
 }
 
 #[cfg(test)]
@@ -76,7 +82,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 pub extern "C" fn _start() -> ! {
     init();
     test_main();
-    loop {}
+    hlt_loop();
 }
 
 #[cfg(test)]
