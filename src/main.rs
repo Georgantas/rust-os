@@ -39,8 +39,7 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     // let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
     // unsafe { page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e) };
 
-    allocator::init_heap(&mut mapper, &mut frame_allocator)
-        .expect("heap initialization failed");
+    allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
 
     let heap_value = Box::new(41);
     println!("heap_value at {:p}", heap_value);
@@ -52,9 +51,15 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     println!("vec at {:p}", vec.as_slice());
     let reference_counted = Rc::new(vec![1, 2, 3]);
     let cloned_reference = reference_counted.clone();
-    println!("current reference count is {}", Rc::strong_count(&cloned_reference));
+    println!(
+        "current reference count is {}",
+        Rc::strong_count(&cloned_reference)
+    );
     core::mem::drop(reference_counted);
-    println!("reference count is {} now", Rc::strong_count(&cloned_reference));
+    println!(
+        "reference count is {} now",
+        Rc::strong_count(&cloned_reference)
+    );
 
     // let addresses = [
     //     // the identity-mapped vga buffer page
