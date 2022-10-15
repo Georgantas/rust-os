@@ -1,8 +1,10 @@
-use core::fmt::Debug;
 use bootloader::bootinfo::{MemoryMap, MemoryRegion, MemoryRegionType};
+use core::fmt::Debug;
 use x86_64::registers::control::Cr3;
 use x86_64::structures::paging::page_table::FrameError;
-use x86_64::structures::paging::{FrameAllocator, Mapper, OffsetPageTable, Page, PageTable, PhysFrame, Size4KiB};
+use x86_64::structures::paging::{
+    FrameAllocator, Mapper, OffsetPageTable, Page, PageTable, PhysFrame, Size4KiB,
+};
 use x86_64::{PhysAddr, VirtAddr};
 
 /// A FrameAllocator that always returns `None`.
@@ -34,8 +36,7 @@ impl BootInfoFrameAllocator {
         let regions = self.memory_map.iter();
         let usable_regions = regions.filter(|r| r.region_type == MemoryRegionType::Usable);
         // map each region to its address range
-        let addr_ranges = usable_regions
-            .map(|r| r.range.start_addr()..r.range.end_addr());
+        let addr_ranges = usable_regions.map(|r| r.range.start_addr()..r.range.end_addr());
         // transform to an iterator of frame start addresses
         let frame_addresses = addr_ranges.flat_map(|r| r.step_by(4096));
         // create `PhysFrame` types from the start addresses
@@ -52,11 +53,13 @@ unsafe impl FrameAllocator<Size4KiB> for BootInfoFrameAllocator {
 }
 
 /// Creates an example mapping for the given page to frame `0xb8000`.
-pub fn create_example_mapping(page: Page,
-                              mapper: &mut OffsetPageTable,
-                              frame_allocator: &mut impl FrameAllocator<Size4KiB>) {
+pub fn create_example_mapping(
+    page: Page,
+    mapper: &mut OffsetPageTable,
+    frame_allocator: &mut impl FrameAllocator<Size4KiB>,
+) {
     use x86_64::structures::paging::PageTableFlags as Flags;
-    
+
     let frame = PhysFrame::containing_address(PhysAddr::new(0xb8000));
     let flags = Flags::PRESENT | Flags::WRITABLE;
 

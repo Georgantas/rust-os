@@ -4,13 +4,19 @@
 #![test_runner(rust_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+extern crate alloc;
+
+use alloc::boxed::Box;
+use alloc::rc::Rc;
+use alloc::vec;
+use alloc::vec::Vec;
 use bootloader::BootInfo;
 use core::panic::PanicInfo;
-use rust_os::{memory, println};
+use rust_os::memory::BootInfoFrameAllocator;
+use rust_os::{allocator, memory, println};
 use x86_64::registers::control::Cr3;
 use x86_64::structures::paging::{Page, PageTable, Translate};
 use x86_64::VirtAddr;
-use rust_os::memory::BootInfoFrameAllocator;
 
 // No mangle ensure that the Rust compiler really
 // outputs a function with the name _start.
@@ -23,17 +29,32 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
-    let mut frame_allocator = unsafe {
-        BootInfoFrameAllocator::init(&boot_info.memory_map)
-    };
+    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
 
-    // map an unused page
-    let page = Page::containing_address(VirtAddr::new(0xdeadbeaf000));
-    memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
+    // // map an unused page
+    // let page = Page::containing_address(VirtAddr::new(0xdeadbeaf000));
+    // memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
+    //
+    // // write the string `New!` to the screen the new mapping
+    // let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
+    // unsafe { page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e) };
 
-    // write the string `New!` to the screen the new mapping
-    let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
-    unsafe { page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e) };
+    allocator::init_heap(&mut mapper, &mut frame_allocator)
+        .expect("heap initialization failed");
+
+    let heap_value = Box::new(41);
+    println!("heap_value at {:p}", heap_value);
+
+    let mut vec = Vec::new();
+    for i in 0..500 {
+        vec.push(i);
+    }
+    println!("vec at {:p}", vec.as_slice());
+    let reference_counted = Rc::new(vec![1, 2, 3]);
+    let cloned_reference = reference_counted.clone();
+    println!("current reference count is {}", Rc::strong_count(&cloned_reference));
+    core::mem::drop(reference_counted);
+    println!("reference count is {} now", Rc::strong_count(&cloned_reference));
 
     // let addresses = [
     //     // the identity-mapped vga buffer page
