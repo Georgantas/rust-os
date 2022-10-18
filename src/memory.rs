@@ -1,5 +1,6 @@
-use bootloader::bootinfo::{MemoryMap, MemoryRegion, MemoryRegionType};
 use core::fmt::Debug;
+
+use bootloader::bootinfo::{MemoryMap, MemoryRegion, MemoryRegionType};
 use x86_64::registers::control::Cr3;
 use x86_64::structures::paging::page_table::FrameError;
 use x86_64::structures::paging::{

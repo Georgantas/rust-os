@@ -1,8 +1,8 @@
+use core::fmt::Write;
+
 use lazy_static::lazy_static;
 use spin::Mutex;
 use uart_16550::SerialPort;
-
-use core::fmt::Write;
 use x86_64::instructions::interrupts;
 
 lazy_static! {

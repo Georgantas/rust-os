@@ -10,13 +10,24 @@ use alloc::boxed::Box;
 use alloc::rc::Rc;
 use alloc::vec;
 use alloc::vec::Vec;
-use bootloader::BootInfo;
 use core::panic::PanicInfo;
-use rust_os::memory::BootInfoFrameAllocator;
-use rust_os::{allocator, memory, println};
+
+use bootloader::BootInfo;
 use x86_64::registers::control::Cr3;
 use x86_64::structures::paging::{Page, PageTable, Translate};
 use x86_64::VirtAddr;
+
+use rust_os::memory::BootInfoFrameAllocator;
+use rust_os::{allocator, memory, println};
+
+async fn async_number() -> u32 {
+    42
+}
+
+async fn example_task() {
+    let number = async_number().await;
+    println!("async number: {}", number);
+}
 
 // No mangle ensure that the Rust compiler really
 // outputs a function with the name _start.

@@ -3,9 +3,11 @@
 #![feature(abi_x86_interrupt)]
 
 use core::panic::PanicInfo;
+
 use lazy_static::lazy_static;
-use rust_os::{exit_qemu, serial_print, serial_println, QemuExitCode};
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
+
+use rust_os::{exit_qemu, serial_print, serial_println, QemuExitCode};
 
 lazy_static! {
     static ref TEST_IDT: InterruptDescriptorTable = {

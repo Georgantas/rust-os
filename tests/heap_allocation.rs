@@ -8,12 +8,14 @@ extern crate alloc;
 
 use alloc::boxed::Box;
 use alloc::vec::Vec;
-use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
+
+use bootloader::{entry_point, BootInfo};
+use x86_64::VirtAddr;
+
 use rust_os::allocator::HEAP_SIZE;
 use rust_os::memory::BootInfoFrameAllocator;
 use rust_os::{allocator, memory};
-use x86_64::VirtAddr;
 
 entry_point!(main);
 

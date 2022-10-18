@@ -1,6 +1,7 @@
-use crate::allocator::{align_up, Locked};
 use core::alloc::{GlobalAlloc, Layout};
 use core::{mem, ptr};
+
+use crate::allocator::{align_up, Locked};
 
 pub struct LinkedListAllocator {
     head: ListNode,

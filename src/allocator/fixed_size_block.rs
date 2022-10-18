@@ -1,7 +1,8 @@
-use crate::allocator::Locked;
 use core::alloc::{GlobalAlloc, Layout};
-use core::{mem, ptr};
 use core::ptr::NonNull;
+use core::{mem, ptr};
+
+use crate::allocator::Locked;
 
 pub struct FixedSizeBlockAllocator {
     list_heads: [Option<&'static mut ListNode>; BLOCK_SIZES.len()],

@@ -12,15 +12,16 @@
 
 extern crate alloc;
 
+use core::alloc::Layout;
+use core::panic::PanicInfo;
+
 pub mod allocator;
 pub mod gdt;
 pub mod interrupts;
 pub mod memory;
 pub mod serial;
+pub mod task;
 pub mod vga_buffer;
-
-use core::alloc::Layout;
-use core::panic::PanicInfo;
 
 pub trait Testable {
     fn run(&self);
