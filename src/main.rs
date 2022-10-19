@@ -18,7 +18,10 @@ use x86_64::structures::paging::{Page, PageTable, Translate};
 use x86_64::VirtAddr;
 
 use rust_os::memory::BootInfoFrameAllocator;
+use rust_os::task::simple_executor::SimpleExecutor;
+use rust_os::task::{keyboard, Task};
 use rust_os::{allocator, memory, println};
+use rust_os::task::executor::Executor;
 
 async fn async_number() -> u32 {
     42
@@ -88,6 +91,11 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     //     let phys = mapper.translate_addr(virt);
     //     println!("{:?} -> {:?}", virt, phys);
     // }
+
+    let mut executor = Executor::new();
+    executor.spawn(Task::new(example_task()));
+    executor.spawn(Task::new(keyboard::print_keypresses()));
+    executor.run();
 
     #[cfg(test)]
     test_main();
